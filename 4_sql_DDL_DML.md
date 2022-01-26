@@ -91,64 +91,75 @@ CREATE TABLE "Payables" (
 
 
 ## DML
+```
+COPY "Login"
+FROM 'Login.csv'
+DELIMITER ','
+CSV HEADER;
 
-`COPY "Login"`
-`FROM 'Login.csv'`
-`DELIMITER ','`
-`CSV HEADER;`
 
-`COPY "Trainer"`
-`FROM 'Trainer.csv'`
-`DELIMITER ','`
-`CSV HEADER;`
+COPY "Trainer"
+FROM 'Trainer.csv'
+DELIMITER ','
+CSV HEADER;
 
-`COPY "Member"`
-`FROM 'Member.csv'`
-`DELIMITER ','`
-`CSV HEADER;`
 
-`COPY "Time"`
-`FROM 'Time.csv'`
-`DELIMITER ','`
-`CSV HEADER;`
+COPY "Member"
+FROM 'Member.csv'
+DELIMITER ','
+CSV HEADER;
 
-`COPY "Announcements"`
-`FROM 'Announcement.csv'`
-`DELIMITER ','`
-`CSV HEADER;`
 
-`COPY "Plan"`
-`FROM 'Plan.csv'`
-`DELIMITER ','`
-`CSV HEADER;`
+COPY "Time"
+FROM 'Time.csv'
+DELIMITER ','
+CSV HEADER;
 
-`COPY "Workouts"`
-`FROM 'Workout.csv'`
-`DELIMITER ','`
-`CSV HEADER;`
 
-`COPY "Receivables"`
-`FROM 'Receivables.csv'`
-`DELIMITER ','`
-`CSV HEADER;`
+COPY "Announcements"
+FROM 'Announcement.csv'
+DELIMITER ','
+CSV HEADER;
 
-`COPY "Payables"`
-`FROM 'Payables.csv'`
-`DELIMITER ','`
-`CSV HEADER;`
 
-`INSERT INTO "Memberships" ("Membership_ID", "Type","Price")`
-`VALUES `
-`	(1,3,30),`
-`	(2,1,10),`
-`	(3,2,20),`
-`	(4,4,40),`
-`	(5,5,50);`
+COPY "Plan"
+FROM 'Plan.csv'
+DELIMITER ','
+CSV HEADER;
 
-`INSERT INTO "Rooms" ("Room_ID","Name","Size","Availability")`
-`VALUES `
-`	(1,'Nmloch',50,true),`
-`	(2,'Mfzzje',200,true),`
-`	(3,'Sjtlfn',50,true),`
-`	(4,'Nbhopy',100,true),`
-`	(5,'Jvquwr',30,false);`
+
+COPY "Workouts"
+FROM 'Workout.csv'
+DELIMITER ','
+CSV HEADER;
+
+
+COPY "Receivables"
+FROM 'Receivables.csv'
+DELIMITER ','
+CSV HEADER;
+
+
+COPY "Payables"
+FROM 'Payables.csv'
+DELIMITER ','
+CSV HEADER;
+
+
+INSERT INTO "Memberships" ("Membership_ID", "Type","Price")
+VALUES 
+	(1,3,30),
+	(2,1,10),
+	(3,2,20),
+	(4,4,40),
+	(5,5,50);
+
+
+INSERT INTO "Rooms" ("Room_ID","Name","Size","Availability")
+VALUES 
+	(1,'Nmloch',50,true),
+	(2,'Mfzzje',200,true),
+	(3,'Sjtlfn',50,true),
+	(4,'Nbhopy',100,true),
+	(5,'Jvquwr',30,false);
+```
