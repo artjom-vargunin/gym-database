@@ -80,6 +80,7 @@ ON entering.i=leaving.i
 ```
 
 Next we create the function to identify whether interval between member enters and leaves the gym does include interval from wstart till wend
+```
 CREATE OR REPLACE function came_for_workout(wstart timestamp, wend timestamp) 
 RETURNS int LANGUAGE plpgsql 
 AS
@@ -92,26 +93,30 @@ BEGIN
  RETURN wtimes; 
 END; 
 $$; 
-
+```
 By applying the function we see that Member was in gym for individual trainings not workouts
+```
 SELECT "Start_time","End_time",came_for_workout("Start_time","End_time") FROM
 (SELECT * FROM "Plan"
 WHERE "Member_ID"=321) pl
 JOIN
 (SELECT * FROM "Workouts") wo
 ON pl."Workout_ID"=wo."Workout_ID"
-
+```
 To drop views created
+```
 DROP VIEW mem_entries
 DROP VIEW mem_plan
-
+```
 ###  Human-readable data on members and trainers (UNION)
+```
 SELECT "F_name","L_name","Email", "Address","Gender","Y_birth" FROM "Member"
 UNION
 SELECT "F_name","L_name","Email", "Address","Gender","Y_birth" FROM "Trainer"
-
+```
 ### How much each member has to pay extra to cover all his memberships? (UDF)
 Create the function to show the price for given membership_ID
+```
 CREATE OR REPLACE function membership_price(mem_id int) 
 RETURNS int LANGUAGE plpgsql 
 AS
@@ -124,13 +129,15 @@ BEGIN
  RETURN pr; 
 END; 
 $$; 
-
+```
 By applying this function we obtain debts(+) and overpayments(-) of the members
+```
 SELECT "Member_ID",SUM(membership_price("Membership_ID"))-SUM("Received_amount") AS needs_to_be_paid FROM "Receivables"
 GROUP BY "Member_ID"
-
+```
 ### Dynamically change member sum of payments when new payment arrived (Trigger, View)
 From view paid_table (previous task) we create toy table paid_table_beginning to play with
+```
 CREATE VIEW paid_table AS
 SELECT "Member_ID",SUM(membership_price("Membership_ID"))-SUM("Received_amount") AS needs_to_be_paid FROM "Receivables"
 GROUP BY "Member_ID"
@@ -139,8 +146,9 @@ ORDER BY "Member_ID"
 CREATE TABLE paid_table_beginning AS 
 SELECT * FROM paid_table
 LIMIT 5
-
+```
 The trigger function below decreases the value in the field needs_to_be_paid in our toy table for the member who made payment
+```
 CREATE OR REPLACE FUNCTION member_paid()
  RETURNS TRIGGER 
  LANGUAGE PLPGSQL
@@ -159,24 +167,32 @@ CREATE TRIGGER something_paid
   ON "Receivables"
   FOR EACH ROW
   EXECUTE PROCEDURE member_paid();
+```
 
 Trigger invokes function  member_paid  if something is inserted into table “Receivables”. For instance, 
+```
 INSERT INTO "Receivables" 
 ("Received_ID","Membership_ID","Member_ID","Date","Received_amount")
 VALUES 
 	(10001,5,1,'2022-01-07 01:00:00',20);
+```
 
 Member with Member_ID=1 pays 20. Due to the trigger, corresponding value in the toy table changes automatically, see 
+```
 SELECT * FROM paid_table_beginning
+```
 
 To remove view, table and row created do
+```
 DROP VIEW paid_table
 DROP TABLE paid_table_beginning
 
 DELETE FROM "Receivables"
 WHERE "Received_ID"=10001
+```
 
 ### How many visits were done by the member after the last payment? Can be used to identify whether member’s membership is expired or not (Indexes, UDF, CTE, subquery)
+```
 CREATE OR REPLACE function mem_last_pay(mem_id int) 
 RETURNS timestamp LANGUAGE plpgsql 
 AS
@@ -189,23 +205,31 @@ BEGIN
    RETURN lp; 
 END; 
 $$; 
+```
 
 This function finds member’s last payment timestamp in the “Receivables” table. For all members, it executes for 865ms, see
+```
 EXPLAIN ANALYZE SELECT "Member_ID",mem_last_pay("Member_ID") FROM "Member"
 
 CREATE INDEX idx_rec_date 
 ON "Receivables"("Date")
+```
 
 With index created, the execution time is reduced to 151 ms, see
+```
 EXPLAIN ANALYZE SELECT "Member_ID",mem_last_pay("Member_ID") FROM "Member"
+```
 
 We use subquery to show number of gym visits after last payment of the member with Member_ID=15
-
+```
 SELECT COUNT("Time") FROM "Time"
 WHERE "Username" = (
 SELECT "Username" FROM "Member"
 WHERE "Member_ID"=15)
 AND "Time">=mem_last_pay(15)
+```
 
 To removes index created do
+```
 DROP INDEX idx_rec_date
+```
